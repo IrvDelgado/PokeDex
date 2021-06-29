@@ -10,6 +10,7 @@ import UIKit
 
 protocol PokemonPresenterDelegate {
     //Functions that the controlloerv is going to conform to.
+    func presentAlert(title: String, message: String)
 }
 
 typealias PresenterDelegate = PokemonPresenterDelegate & UIViewController
