@@ -16,6 +16,4 @@ struct PokemonDetail: Codable {
     let types: [TypeArray]
     let weight: Int
     
-    
-    
 }
