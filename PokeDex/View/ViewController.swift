@@ -12,10 +12,11 @@ class ViewController: UIViewController {
     private let presenter = PokemonPresenter()
     private var PokemonList = [PokemonModel]()
     
+    @IBOutlet weak var tableView: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
+        tableView.dataSource = self
         presenter.setViewDelegate(delegate: self)
         presenter.fetchPokemons()
 
@@ -31,7 +32,12 @@ extension ViewController: PokemonPresenterDelegate
     func didFetchDetail(pokemonname: String, pokedetail: PokemonDetail) {
         PokemonList.append(PokemonModel(name:pokemonname, detail: pokedetail))
         
-        
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+            let indexp = IndexPath(row: self.PokemonList.count-1, section: 0)
+            
+           // self.tableView.scrollToRow(at: indexp, at: .top, animated: true)
+        }
     }
     
 
@@ -75,3 +81,41 @@ extension ViewController: PokemonPresenterDelegate
     }
 }
 
+extension ViewController: UITableViewDataSource
+{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return PokemonList.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let message = PokemonList[indexPath.row].name
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell", for: indexPath) //as! MessageCell
+
+        /*
+        //If message from the current user
+        if message.sender == Auth.auth().currentUser?.email {
+            cell.leftImageView.isHidden = true
+            cell.rightImageView.isHidden = false
+            
+            cell.messageBubble.backgroundColor = UIColor(named: K.BrandColors.lightPurple)
+            cell.label.textColor = UIColor(named: K.BrandColors.purple)
+        }
+        else {
+            cell.leftImageView.isHidden = false
+            cell.rightImageView.isHidden = true
+            
+            cell.messageBubble.backgroundColor = UIColor(named: K.BrandColors.purple)
+            cell.label.textColor = UIColor(named: K.BrandColors.lightPurple)
+        }
+        
+        */
+        
+        cell.textLabel?.text = message
+        
+        return cell
+    }
+    
+    
+}
