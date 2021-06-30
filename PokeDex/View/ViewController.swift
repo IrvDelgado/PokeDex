@@ -11,6 +11,7 @@ class ViewController: UIViewController {
 
     private let presenter = PokemonPresenter()
     private var PokemonList = [PokemonModel]()
+    private var currentindx:Int = -1
     
     @IBOutlet weak var tableView: UITableView!
     override func viewDidLoad() {
@@ -22,6 +23,22 @@ class ViewController: UIViewController {
         presenter.setViewDelegate(delegate: self)
         presenter.fetchPokemons()
 
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let DetailVC = segue.destination as? DetailViewController else {
+            return
+        }
+        
+        if(currentindx != -1){
+            print("******************")
+            print(currentindx)
+            print(PokemonList[currentindx])
+            DetailVC.pokemonmodel = PokemonList[currentindx]
+        }
+        else {
+            print("orale")
+        }
     }
 
 
@@ -125,6 +142,9 @@ extension ViewController: UITableViewDataSource
 extension ViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        currentindx = indexPath.row
+        
+        performSegue(withIdentifier: "MySegue", sender: self)
         //print(indexPath.row)
         //print(PokemonList[indexPath.row])
     }
