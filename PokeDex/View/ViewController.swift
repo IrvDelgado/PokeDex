@@ -10,6 +10,7 @@ import UIKit
 class ViewController: UIViewController {
 
     private let presenter = PokemonPresenter()
+    private var PokemonList = [PokemonModel]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,6 +18,7 @@ class ViewController: UIViewController {
         
         presenter.setViewDelegate(delegate: self)
         presenter.fetchPokemons()
+
     }
 
 
@@ -26,9 +28,28 @@ class ViewController: UIViewController {
 
 extension ViewController: PokemonPresenterDelegate
 {
-    func presentPokemons(pokemons: PokemonData) {
-        print(pokemons.results)
+    func didFetchDetail(pokemonname: String, pokedetail: PokemonDetail) {
+        PokemonList.append(PokemonModel(name:pokemonname, detail: pokedetail))
+        
+        
     }
+    
+
+    
+    func didFetchPokemon(pokemons: [Pokemon]) {
+        
+        //Fetch Pokemon details
+        for pokemon in pokemons {
+            presenter.fetchPokemonDetail(pokemon: pokemon)
+        }
+        
+        print("___________________________________________________________________")
+        print(PokemonList)
+    }
+    
+    
+
+
     
     func presentAlert(title: String, message: String) {
         print("Gotta catch 'em all")
@@ -50,7 +71,7 @@ extension ViewController: PokemonPresenterDelegate
     */
     
     func didFailWithError(error: Error) {
-        print(error)
+        //print(error)
     }
 }
 

@@ -10,9 +10,12 @@ import UIKit
 
 protocol PokemonPresenterDelegate {
     //Functions that the controlloerv is going to conform to.
-    func presentPokemons(pokemons:PokemonData)
+    //func presentPokemons(pokemons:[PokemonModel])
     func presentAlert(title: String, message: String)
     func didFailWithError(error: Error)
+    func didFetchPokemon(pokemons: [Pokemon])
+    func didFetchDetail(pokemonname: String, pokedetail: PokemonDetail)
+  
 }
 
 typealias PresenterDelegate = PokemonPresenterDelegate & UIViewController
@@ -26,17 +29,14 @@ class PokemonPresenter {
     }
     
     
+    
+
     public func fetchPokemons() {
-        //
-        performRequest(urlstring: "https://pokeapi.co/api/v2/pokemon?limit=500/")
-    }
-    
-    
-    func performRequest(urlstring: String)  {
+        
         
         //1. Create url
         
-        if let url = URL(string: urlstring){
+        if let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=500/"){
             
             //2. Create urlsession
             let urlsession = URLSession(configuration: .default)
@@ -44,7 +44,7 @@ class PokemonPresenter {
             ///3.  Give the session a task
             let task = urlsession.dataTask(with: url) { (data, response, error) in
                 if error != nil {
-                    print(error!)
+                    //print(error!)
                     self.delegate?.didFailWithError(error: error!)
                     return
                 }
@@ -52,7 +52,8 @@ class PokemonPresenter {
                 if let safeData = data {
                     if let Pokemons = self.parseJSON(safeData){
                         //self.delegate?.didUpdateWeather(self, weather: weather)
-                        self.delegate?.presentPokemons(pokemons: Pokemons)
+                        //self.delegate?.presentPokemons(pokemons: Pokemons)
+                        self.delegate?.didFetchPokemon(pokemons: Pokemons.results)
                     }
                 }
             }
@@ -61,6 +62,7 @@ class PokemonPresenter {
             task.resume()
             
         }
+        
     }
     
     func parseJSON(_ pokemonData: Data) -> PokemonData?{
@@ -74,6 +76,68 @@ class PokemonPresenter {
             
             let pokemons = PokemonData(results: decodedData.results)
             return pokemons
+        
+         }
+        catch  {
+            delegate?.didFailWithError(error: error)
+            return nil
+        }
+       
+    }
+    //PokemonModel
+    
+    
+
+    
+    public func fetchPokemonDetail(pokemon: Pokemon){
+        //1. Create url
+        //var detail = PokemonDetail(abilities: [], base_experience: 0, height: 0, id: -1, sprites: Sprite(front_default: ""), types: [], weight: 0)
+        
+        if let url = URL(string: pokemon.url){
+            
+            //2. Create urlsession
+            let urlsession = URLSession(configuration: .default)
+            
+            ///3.  Give the session a task
+            let task = urlsession.dataTask(with: url) { (data, response, error) in
+                if error != nil {
+                    //print(error!)
+                    self.delegate?.didFailWithError(error: error!)
+                    return
+                }
+                
+                if let safeData = data {
+                    if let pokemondetail = self.parseDetail(safeData){
+                        //self.delegate?.didUpdateWeather(self, weather: weather)
+                        //self.delegate?.presentPokemons(pokemons: Pokemons)
+                        //Retornar Detail
+                        
+                        self.delegate?.didFetchDetail(pokemonname: pokemon.name, pokedetail: pokemondetail)
+                        //print(detail)
+                    }
+                }
+                
+            }
+            
+            //4. Start the task
+            task.resume()
+            
+        }
+        
+    }
+    
+    func parseDetail(_ pokemondetailData: Data) -> PokemonDetail?{
+        let decoder = JSONDecoder()
+        
+        do {
+            let decodedData = try  decoder.decode(PokemonDetail.self, from: pokemondetailData)
+            
+            
+            //let pokemon = PokemonModel(conditionId: decodedData.weather[0].id, cityName: decodedData.name, temperature: decodedData.main.temp)
+            
+            let pokemondetail = PokemonDetail(abilities: decodedData.abilities, base_experience: decodedData.base_experience, height: decodedData.height, id: decodedData.id, sprites: decodedData.sprites, types: decodedData.types, weight: decodedData.weight)
+            
+            return pokemondetail
         
          }
         catch  {
