@@ -17,6 +17,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         tableView.dataSource = self
+        
+        tableView.delegate = self
         presenter.setViewDelegate(delegate: self)
         presenter.fetchPokemons()
 
@@ -118,4 +120,12 @@ extension ViewController: UITableViewDataSource
     }
     
     
+}
+
+extension ViewController: UITableViewDelegate
+{
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //print(indexPath.row)
+        //print(PokemonList[indexPath.row])
+    }
 }
